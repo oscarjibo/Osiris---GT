@@ -1,0 +1,26 @@
+{%load static%}
+<html>
+    <head>
+        <title>{%block title%} {%endblock%}</title>
+        <link   type= 'text/css' href='{% static "css/plantillabarra.css"  %}', rel="stylesheet">
+        <style>
+            body {
+              background-image: url('{% static "imagenes/fondo.jpg" %}');
+            }
+          </style>
+
+
+    </head>
+    <body>
+        {%include "plantillabarra.html"%}
+        <h1>OSISIRS V1.0</h1>
+        <img src='{% static "imagenes/fondo.jpg" %}' alt="">
+        <br>
+        {%block content%}
+        {%endblock%}
+        <p> este es elpie de la pagina     </p>
+        <script type="text/javascript" src = '{% static "js/plantillapadre.js" %}'>  a </script>
+    </body>
+</html>
+
+

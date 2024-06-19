@@ -1,0 +1,425 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Servicios OSIRIS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.10.0/daygrid/main.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-image: url('{% static "imagenes/grid.jpg" %}');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .navbar {
+      background-color: #343a40;
+    }
+
+    .navbar-brand {
+      color: #fff !important;
+    }
+
+    .navbar-nav .nav-link {
+      color: #ffffff !important;
+    }
+
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0px;
+      margin-top: 10px;
+    }
+
+    .event-card {
+      background-color: #fff;
+      border: 10px solid #dee2e6;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+      margin: 13px;
+    }
+
+    .event-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .event-card .card-body {
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .event-card .card-title {
+      font-size: 24px;
+      margin-bottom: 0px;
+      color: #343a40;
+    }
+
+    .event-card .card-text {
+      color: #6c757d;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+      border-radius: 10px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+      margin: 15px;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+
+    /* Mapa de Leaflet */
+    #map {
+      width: 100%;
+      height: 300px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    /* Calendario */
+    #calendar {
+      width: 100%;
+      height: 300px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .fc-day-today {
+      background-color: #f00;
+      color: white;
+    }
+
+    /* Clima */
+    #clima {
+      width: 100%;
+      height: 380px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    #clima .card-body {
+      padding: 20px;
+    }
+
+    #clima .card-title {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #343a40;
+    }
+
+    #clima .card-text {
+      color: #6c757d;
+    }
+
+    #infoia .card-text {
+      color: #ac7000;
+    }
+
+    #infoia card-body {
+      max-height: 400px;
+      /* Ajusta esto a la altura que prefieras */
+      overflow-y: auto;
+      /* Permite el desbordamiento vertical (scroll) */
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">Portal de Servicios OSIRIS</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <form action="/inicio" method="post">
+            {% csrf_token %}
+            <button id="btn-monitoreo" type="submit" class="btn btn-primary">Inicio</button>
+          </form>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <h1></h1>
+  <h2 class="text-center mb-4">Configuración de automatización por IA</h2>
+
+  <div class="container mt-5">
+    <h3 class="text-center mb-4">Parametros configurados
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+    </h3>
+    <div class="row">
+      <div class="col-sm-4">
+
+        <div class="card">
+
+          <div class="card-body">
+            <h5 class="card-title">% Luz </h5>
+            <p class="card-text">16</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Nivel PH</h5>
+            <p class="card-text">4</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Temperatura suelo</h5>
+            <p class="card-text">22 °C</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Humedad suelo</h5>
+            <p class="card-text">50%</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Temperatura aire</h5>
+            <p class="card-text">32°C</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Humedad aire</h5>
+            <p class="card-text">17%</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Nivel CO2</h5>
+            <p class="card-text">25 PPM</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Nivel Amoniaco</h5>
+            <p class="card-text"> PPM</p>
+          </div>
+        </div>
+
+      </div>
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Estado Cultivo</h5>
+            <p class="card-text"> EXELENTE <i class="fa-solid fa-check"></i></p>
+          </div>
+        </div>
+      </div>
+      <h1></h1>
+    <h3 class="text-center mb-4">Parametros del suelo
+      <i class="fa-solid fa-cannabis"></i>
+    </h3>
+    <div class="event-grid d-flex justify-content-around">
+      <div class="event-card">
+        <div class="card-body text-center">
+          <h5 class="card-title">Nivel de PH</h5>
+        </div>
+        <div class="form-group m-3">
+          <input type="text" class="form-control" id="phLevel" placeholder="Nivel de PH">
+        </div>
+        <form action="/ia" method="post" class="d-flex justify-content-center">
+          {% csrf_token %}
+          <button id="btn-datos-cultivo" type="submit" class="btn btn-primary btn-sm"
+            style="height: 30px;">Establecer</button>
+        </form>
+
+      </div>
+      <div class="event-card">
+        <div class="card-body text-center">
+          <h5 class="card-title">% Luz</h5>
+        </div>
+        <div class="form-group m-3">
+          <input type="text" class="form-control" id="phLevel" placeholder="lumes">
+        </div>
+        <form action="/ia" method="post" class="d-flex justify-content-center">
+          {% csrf_token %}
+          <button id="btn-datos-cultivo_1" type="submit" class="btn btn-primary btn-sm"
+            style="height: 30px;">Establecer</button>
+        </form>
+
+      </div>
+      <div class="event-card">
+        <div class="card-body text-center">
+          <h5 class="card-title">Temperatura</h5>
+        </div>
+        <div class="form-group m-3">
+          <input type="text" class="form-control" id="phLevel" placeholder="Temperatura °C">
+        </div>
+        <form action="/ia" method="post" class="d-flex justify-content-center">
+          {% csrf_token %}
+          <button id="btn-datos-cultivo_2" type="submit" class="btn btn-primary btn-sm"
+            style="height: 30px;">Establecer</button>
+        </form>
+      </div>
+      <div class="event-card">
+        <div class="card-body text-center">
+          <h5 class="card-title">Humedad</h5>
+        </div>
+        <div class="form-group m-3">
+          <input type="text" class="form-control" id="phLevel" placeholder="% Humedad">
+        </div>
+        <form action="/ia" method="post" class="d-flex justify-content-center">
+          {% csrf_token %}
+
+          <button id="btn-datos-cultivo_3" type="submit" class="btn btn-primary btn-sm"
+            style="height: 30px;">Establecer</button>
+        </form>
+      </div>
+
+
+
+    </div>
+    <div class="container mt-5">
+      <h3 class="text-center mb-4">Parametros del Entorno
+        <i class="fa-regular fa-snowflake"></i>
+      </h3>
+      <div class="event-grid d-flex justify-content-around">
+        <div class="event-card">
+          <div class="card-body text-center">
+            <h5 class="card-title">Temperatura</h5>
+          </div>
+          <div class="form-group m-3">
+            <input type="text" class="form-control" id="phLevel" placeholder="Temperatura en °C">
+          </div>
+          <form action="/inicio" method="post" class="d-flex justify-content-center">
+            {% csrf_token %}
+
+            <button id="btn-datos-cultivo_4" type="submit" class="btn btn-primary btn-sm"
+              style="height: 30px;">Establecer</button>
+          </form>
+        </div>
+        <div class="event-card">
+          <div class="card-body text-center">
+            <h5 class="card-title">Humedad</h5>
+          </div>
+          <div class="form-group m-3">
+            <input type="text" class="form-control" id="phLevel" placeholder="% Humedad">
+          </div>
+          <form action="/inicio" method="post" class="d-flex justify-content-center">
+            {% csrf_token %}
+
+            <button id="btn-datos-cultivo_5" type="submit" class="btn btn-primary btn-sm"
+              style="height: 30px;">Establecer</button>
+          </form>
+        </div>
+        <div class="event-card">
+          <div class="card-body text-center">
+            <h5 class="card-title">Nivel de CO2</h5>
+          </div>
+          <div class="form-group m-3">
+            <input type="text" class="form-control" id="phLevel" placeholder="PPM CO2">
+          </div>
+          <form action="/inicio" method="post" class="d-flex justify-content-center">
+            {% csrf_token %}
+
+            <button id="btn-datos-cultivo_6" type="submit" class="btn btn-primary btn-sm"
+              style="height: 30px;">Establecer</button>
+          </form>
+        </div>
+        <div class="event-card">
+          <div class="card-body text-center">
+            <h5 class="card-title">Nivel de Amoniaco</h5>
+          </div>
+          <div class="form-group m-3">
+            <input type="text" class="form-control" id="phLevel" placeholder="PPM %">
+          </div>
+          <form action="/inicio" method="post" class="d-flex justify-content-center">
+            {% csrf_token %}
+
+            <button id="btn-datos-cultivo_7" type="submit" class="btn btn-primary btn-sm"
+              style="height: 30px;">Establecer</button>
+          </form>
+        </div>
+      </div>
+      <h1>-</h1>
+      
+        <form action="/inicio" method="post" class="d-flex justify-content-center">
+          {% csrf_token %}
+          <button id="btn-datos-cultivo" type="submit" class="btn btn-primary">Regresar</button>
+        </form>
+        <script>
+
+        </script>
+
+</body>
+
+</html>
+
+<script>
+  document.getElementById('btn-datos-cultivo').addEventListener('click', function (event) {
+    event.preventDefault(); // Evita que el formulario se envíe
+    alert('INGRESADO CORRECTAMENTE');
+    miFuncion(); // Llama a la función que quieres ejecutar
+  });
+  document.getElementById('btn-datos-cultivo_1').addEventListener('click', function (event) {
+    event.preventDefault(); // Evita que el formulario se envíe
+    alert('INGRESADO CORRECTAMENTE');
+    miFuncion(); // Llama a la función que quieres ejecutar
+  });
+  document.getElementById('btn-datos-cultivo_2').addEventListener('click', function (event) {
+    event.preventDefault(); // Evita que el formulario se envíe
+    alert('INGRESADO CORRECTAMENTE');
+    miFuncion(); // Llama a la función que quieres ejecutar
+  });
+  document.getElementById('btn-datos-cultivo_3').addEventListener('click', function (event) {
+    event.preventDefault(); // Evita que el formulario se envíe
+    alert('INGRESADO CORRECTAMENTE');
+    miFuncion(); // Llama a la función que quieres ejecutar
+  });
+  document.getElementById('btn-datos-cultivo_4').addEventListener('click', function (event) {
+    event.preventDefault(); // Evita que el formulario se envíe
+    alert('INGRESADO CORRECTAMENTE');
+    miFuncion(); // Llama a la función que quieres ejecutar
+  });
+  document.getElementById('btn-datos-cultivo_5').addEventListener('click', function (event) {
+    event.preventDefault(); // Evita que el formulario se envíe
+    alert('INGRESADO CORRECTAMENTE');
+    miFuncion(); // Llama a la función que quieres ejecutar
+  });
+  document.getElementById('btn-datos-cultivo_6').addEventListener('click', function (event) {
+    event.preventDefault(); // Evita que el formulario se envíe
+    alert('INGRESADO CORRECTAMENTE');
+    miFuncion(); // Llama a la función que quieres ejecutar
+  });
+  document.getElementById('btn-datos-cultivo_7').addEventListener('click', function (event) {
+    event.preventDefault(); // Evita que el formulario se envíe
+    alert('INGRESADO CORRECTAMENTE');
+    miFuncion(); // Llama a la función que quieres ejecutar
+  });
+  function miFuncion() {
+    // Aquí va el código de tu función
+    console.log('La función se ha ejecutado');
+  }
+</script>

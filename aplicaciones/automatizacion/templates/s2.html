@@ -1,0 +1,379 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Servicios OSIRIS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js">
+
+
+    </script>
+    <style>
+        body {
+            background-image: url('{% static "imagenes/grid.jpg" %}');
+            /* Reemplaza 'ruta/a/tu/imagen.jpg' con la ruta a tu imagen de fondo */
+            background-size: cover;
+            /* La imagen de fondo cubrirá todo el cuerpo */
+            background-position: center;
+            /* Centra la imagen de fondo */
+            background-repeat: no-repeat;
+            /* Evita que la imagen de fondo se repita */
+            /*transform: scale(1.15); /* Escala toda la página en un 25% */
+        }
+
+        .navbar {
+            background-color: #343a40;
+        }
+
+        .navbar-brand {
+            color: #fff !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: #ffffff !important;
+        }
+
+        .container {
+            max-width: 960px;
+        }
+
+        .table th,
+        .table td {
+            padding: .75rem;
+            vertical-align: top;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .row {
+            --bs-gutter-x: 0;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            margin: 10px;
+        }
+
+
+        @media (min-width: 768px) {
+            .col-md-6 {
+                | width: 50%;
+                max-width: 50%;
+            }
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            border-radius: 20px;
+            margin: 9px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .input-group {
+            width: 360px;
+
+            margin: 9px;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+    </style>
+</head>
+
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Portal de Servicios OSIRIS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <form action="/inicio" method="post">
+                        {% csrf_token %}
+                        <button id="btn-monitoreo" type="submit" class="btn btn-primary">Inicio</button>
+                      </form>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <h1 class="text-center mt-4">Datos del suelo</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Humedad del suelo</h5>
+                        <canvas id="humedadChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Ph del cultivo</h5>
+                        <canvas id="phChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Temperatura del suelo</h5>
+                        <canvas id="temperaturaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h1 class="text-center mt-4">Datos del exterior</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">CO2</h5>
+                        <canvas id="CO2"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Oxigeno</h5>
+                        <canvas id="Oxigeno"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Amoniaco</h5>
+                        <canvas id="Amoniaco"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <p></p>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Luz ultravioleta</h5>
+                            <p class="card-text" id="valor1">{{ data.0.Luz_ultravioleta}}%</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Presion barometrica</h5>
+                            <p class="card-text" id="valor2">{{ data.0.Presion_barometrica}}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Luminocidad</h5>
+                            <p class="card-text" id="valor3">{{ data.0.Luminosidad}}%</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Lluvia</h5>
+                            <p class="card-text" id="valor4">{{ data.0.Lluvia}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h1 class="text-center mt-4"></h1>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Humedad aire</h5>
+                            <canvas id="Humedad_aire"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mx-auto">
+                    <div class="card">  
+                        <div class="card-body">
+                            <h5 class="card-title">Temperatura aire</h5>
+                            <canvas id="Temperatura_aire"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <form action="/get_data_sensor" method="post" class="d-flex justify-content-center">
+                {% csrf_token %}
+                <button id="btn-datos-cultivo" type="submit" class="btn btn-primary">Actualizar</button>
+            </form>
+            <form action="/inicio" method="post" class="d-flex justify-content-center">
+                {% csrf_token %}
+                <button id="btn-datos-cultivo" type="submit" class="btn btn-primary">Regresar</button>
+            </form>
+
+        </div>
+
+        <script>
+            // Aquí debes reemplazar los datos de ejemplo con tus datos reales
+            var humedadData = {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+                datasets: [{
+                    label: 'Humedad del suelo',
+                    data: [12, 19, 3, 5, 2, 3],
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            };
+
+            var Humedad_airedata = {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+                datasets: [{
+                    label: 'Ph del cultivo',
+                    data: [12, 13, 11, 12, 12, 12],
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            };
+            var Temperatura_airedata = {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+                datasets: [{
+                    label: 'Ph del cultivo',
+                    data: [2, 3, 5, 7, 8, 10],
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            };
+            var phData = {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+                datasets: [{
+                    label: 'Ph del cultivo',
+                    data: [2, 3, 5, 7, 8, 10],
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            };
+
+            var temperaturaData = {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+                datasets: [{
+                    label: 'Temperatura del suelo',
+                    data: [33, 231, 232, 23, 24, 25],
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            };
+            var Amoniacodata = {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+                datasets: [{
+                    label: 'Temperatura del suelo',
+                    data: [20, 121, 22, 123, 24, 25],
+                    fill: false,
+                    borderColor: 'rgb(75, 199, 192)',
+                    tension: 0.1
+                }]
+            };
+            var CO2data = {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+                datasets: [{
+                    label: 'Temperatura del suelo',
+                    data: [3, 21, 12, 23, 24, 15],
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            };
+            var Oxigenodata = {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+                datasets: [{
+                    label: 'Temperatura del suelo',
+                    data: [270, 271, 272, 273, 274, 275],
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            };
+
+            var humedadChart = new Chart(document.getElementById('humedadChart'), {
+                type: 'line',
+                data: humedadData,
+            });
+
+            var phChart = new Chart(document.getElementById('phChart'), {
+                type: 'line',
+                data: phData,
+            });
+
+            var temperaturaChart = new Chart(document.getElementById('temperaturaChart'), {
+                type: 'line',
+                data: temperaturaData,
+            });
+
+            var humedadChart = new Chart(document.getElementById('CO2'), {
+                type: 'line',
+                data: CO2data,
+            });
+
+            var phChart = new Chart(document.getElementById('Oxigeno'), {
+                type: 'line',
+                data: Oxigenodata,
+            });
+
+            var temperaturaChart = new Chart(document.getElementById('Amoniaco'), {
+                type: 'line',
+                data: Amoniacodata,
+            });
+            var phChart = new Chart(document.getElementById('Humedad_aire'), {
+                type: 'line',
+                data: Humedad_airedata,
+            });
+
+            var temperaturaChart = new Chart(document.getElementById('Temperatura_aire'), {
+                type: 'line',
+                data: Temperatura_airedata,
+            });
+            //document.getElementById('valor1').textContent = 'Nuevo valor 1';
+            //document.getElementById('valor2').textContent = 'Nuevo valor 2';
+            //document.getElementById('valor3').textContent = 'Nuevo valor 3';
+            //document.getElementById('valor4').textContent = 'Nuevo valor 4';
+
+        </script>
+</body>
+
+</html>

@@ -1,0 +1,208 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Servicios OSIRIS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.10.0/daygrid/main.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-image: url('{% static "imagenes/grid.jpg" %}');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .navbar {
+      background-color: #343a40;
+    }
+
+    .navbar-brand {
+      color: #fff !important;
+    }
+
+    .navbar-nav .nav-link {
+      color: #ffffff !important;
+    }
+
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0px;
+      margin-top: 10px;
+    }
+
+    .event-card {
+      background-color: #fff;
+      border: 10px solid #dee2e6;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+      margin: 13px;
+    }
+
+    .event-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .event-card .card-body {
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .event-card .card-title {
+      font-size: 24px;
+      margin-bottom: 0px;
+      color: #343a40;
+    }
+
+    .event-card .card-text {
+      color: #6c757d;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+      border-radius: 10px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+      margin: 15px;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+
+    /* Mapa de Leaflet */
+    #map {
+      width: 100%;
+      height: 300px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    /* Calendario */
+    #calendar {
+      width: 100%;
+      height: 300px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .fc-day-today {
+      background-color: #f00;
+      color: white;
+    }
+
+    /* Clima */
+    #clima {
+      width: 100%;
+      height: 380px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    #clima .card-body {
+      padding: 20px;
+    }
+
+    #clima .card-title {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #343a40;
+    }
+
+    #clima .card-text {
+      color: #6c757d;
+    }
+
+    #infoia .card-text {
+      color: #ac7000;
+    }
+
+    #infoia card-body {
+      max-height: 400px;
+      /* Ajusta esto a la altura que prefieras */
+      overflow-y: auto;
+      /* Permite el desbordamiento vertical (scroll) */
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">Portal de Servicios OSIRIS</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <form action="/inicio" method="post">
+            {% csrf_token %}
+            <button id="btn-monitoreo" type="submit" class="btn btn-primary">Inicio</button>
+          </form>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <h1></h1>
+  <h2 class="text-center mb-4">Seguridad en su terreno  <i class="fa-solid fa-video"></i>  </h2>
+<div class="container-fluid w-100">
+    <div class="event-grid d-flex flex-column justify-content-around align-items-stretch">
+      <div class="event-card mb-3">
+        <div class="card-body text-center">
+          <div class="row">
+            <div class="col">
+              <h3> camera 1</h3>
+              <img class="img-fluid" src="https://www.dairyglobal.net/app/uploads/2021/09/001_314_IMG_NotEating2-848x565.jpg" alt="Descripción de la imagen">
+            </div>
+            <div class="col">
+              <h3> camera 2</h3>
+              <img class="img-fluid" src="https://usercontent.one/wp/mediaan.com/wp-content/uploads/2021/03/Lying-and-eating-detection-image-2-1200x675.jpg?media=1714647656" alt="Descripción de la imagen">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="event-card">
+        <div class="card-body">
+          <h8 class="card-title">Alertas Recibidas</h8>
+          <div>
+            <ul>
+              <li>Intruso detectado a las 12:03 en la entrada principal <i class="fa-regular fa-bell"></i></li>
+              <li>Carro detectado en el camino a la bodega a las 5:10 a.m  <i class="fa-regular fa-bell"></i></li>
+              <li>Oso de anteojos detectado en su potrero numero 6  las 6:50 a.m  <i class="fa-regular fa-bell"></i></li>
+              <!-- Agrega más alertas aquí -->
+              <li>Hace falta una vaca en el lote 5 a las 6:30 p.m <i class="fa-regular fa-bell"></i></li>
+              <!-- Agrega más alertas aquí -->
+              <li>Una vaca lleva 3 sin moverse en el corral 5<i class="fa-regular fa-bell"></i></li>
+              <!-- Agrega más alertas aquí -->
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+  <h1>-</h1>
+
+  <form action="/inicio" method="post" class="d-flex justify-content-center">
+    {% csrf_token %}
+    <button id="btn-datos-cultivo" type="submit" class="btn btn-primary">Regresar</button>
+  </form>
+  <script>
+
+  </script>
+
+</body>
+
+</html>

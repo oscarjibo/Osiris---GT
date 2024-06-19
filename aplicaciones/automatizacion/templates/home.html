@@ -1,0 +1,80 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSIRIS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"></script>
+  <style>
+    body {
+      background-image: url('{% static "imagenes/fondo.jpg" %}');
+      /* Reemplaza 'ruta/a/tu/imagen.jpg' con la ruta a tu imagen de fondo */
+      background-size: cover;
+      /* Ajusta el tamaño de la imagen de fondo para cubrir todo el cuerpo */
+      background-position: center;
+      /* Centra la imagen de fondo */
+      background-repeat: no-repeat;
+      /* Evita que la imagen de fondo se repita */
+    }
+
+    .wrapper {
+      display: flex;
+      align-items: center;
+      /* Centra verticalmente el contenido */
+      justify-content: center;
+      /* Centra horizontalmente el contenido */
+      height: 80vh;
+      /* Establece la altura del contenedor al 100% del viewport */
+    }
+
+    .form-container {
+      text-align: center;
+      /* Centra el contenido dentro del contenedor */
+      max-width: 300px;
+      /* Ajusta el ancho máximo del contenedor según sea necesario */
+      margin: 0 auto;
+      /* Centra horizontalmente el contenedor */
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <!-- Tu código navbar aquí -->
+  </nav>
+  <div class="wrapper">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 form-container">
+          <div class="table-responsive">
+            <!-- Muestra mensajes de error aquí -->
+            {% if messages %}
+              <div class="alert alert-danger" role="alert">
+                {% for message in messages %}
+                  {% if message.tags == 'error' %}{{ message }}{% endif %}
+                {% endfor %}
+              </div>
+            {% endif %}
+            <form action="login" method="post">
+              {% csrf_token %}
+              <select class="form-control" name="user_id">
+                <option value="">Selecciona un usuario</option>
+                {% for user in users %}
+                <option value="{{ user.id }}">{{ user.nombre }}</option>
+                {% endfor %}
+              </select>
+              <input type="password" class="form-control mb-2" name="clave" id="clave" placeholder="Ingrese su clave">
+              <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
